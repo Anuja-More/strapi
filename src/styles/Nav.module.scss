@@ -1,0 +1,50 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    
+    &__logo {
+      display: flex;
+      align-items: center;
+      
+    }
+    
+    &__menu {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      
+      &_item {
+        margin-right: 1rem;
+        
+        &:last-child {
+          margin-right: 0;
+        }
+        
+        &::before {
+          content: "";
+          display: block;
+          height: 3px;
+          width: 0;
+          background-color: #000;
+          transition: width 0.2s ease-in-out;
+        }
+        
+        &:hover::before {
+          width: 100%;
+        }
+      }
+      
+      &_link {
+        color: #FF6F61;
+        text-decoration: none;
+        
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+  
