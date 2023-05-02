@@ -7,8 +7,8 @@ const Custom404 = () => {
       <div className={styles.errorContainer__error}>
         <h1 className={styles.errorContainer__heading}>404</h1>
         <h2 className={styles.errorContainer__headingh2}>Page Not Found</h2>
-        <Link href="/">
-          <a className={styles.errorContainer__button}>Home</a>
+        <Link href="/en" className={styles.errorContainer__button}>
+         Home
         </Link>
       </div>
     </div>

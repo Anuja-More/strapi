@@ -4,62 +4,58 @@ import parse from "html-react-parser";
 import Custom404 from "./404";
 import Layout from "../componentes/layout/layout";
 
-export default function ProductPage({ navData, footerData, pageData }) {
-  const router = useRouter();
-  const currentSlug = router.query.slug?.[0];
-  console.log("currentSlug:", currentSlug);
-  const currentPage = pageData.find(
-    (page) => page.attributes.Slug === currentSlug
-  );
-  console.log("currentPage:", currentPage);
-
-  if (!currentPage) {
-    return <Custom404 />;
-  }
-
+export default function ProductPage({ navData, footerData, pageData, Locale }) {
+  console.log(Locale)
+  const data ={navData,Locale}
   return (
-    <Layout headerData={navData} footerData={footerData}>
-      <div>{currentSlug}</div>
-      <div>{currentPage.attributes.Title}</div>
-      {currentPage.attributes.Content && (
-        <div>{parse(currentPage.attributes.Content)}</div>
+    <>
+     <Layout headerData={data} footerData={footerData}>
+      {pageData?.[0]?.attributes?.Title && <div>{pageData[0].attributes.Title}</div>}
+      {pageData?.[0]?.attributes?.Content && (
+        <div>{parse(pageData[0].attributes.Content)}</div>
       )}
     </Layout>
+    </>
   );
 }
 
 
 
-export async function getStaticPaths() {
-  const pagesData = await fetch(
-    "https://strapi-qa.heartfulness.org/api/smsfin-pages?locale=all",
-    { timeout: 3000 } // 3 second timeout
-).then((res) => res.json());
-  const paths = pagesData.data.map((page) => ({
-    params: { slug: [page.attributes.Slug] },
-  }));
-  return { paths, fallback: false };
-}
+export const getStaticPaths = async () => {
+  const response = await fetch(`https://strapi-qa.heartfulness.org/api/spiritualfound-pages?&locale=all`
+  // , {
+  //   timeout: 10000
+  // }
+  )
+  const list = await response.json()
+  const paths = list?.data?.map(page => {
+    return { params: { slug: [page.attributes.locale, page.attributes.Slug] } }
+  })
+  return {
+    paths,
+    fallback: false
+  }
 
+}
 export async function getStaticProps({ params }) {
   try {
     const [navData, footerData, allPagesData] = await Promise.all([
-      fetch(getStrapiURL("/api/smsfin-header?populate=deep")).then((res) =>
+      fetch(getStrapiURL(`/api/spiritualfound-header?populate=deep&locale=en`)).then((res) =>
         res.json()
       ),
-      fetch(getStrapiURL("/api/smsfin-footer?populate=deep")).then((res) =>
+      fetch(getStrapiURL(`/api/spiritualfound-footer?populate=deep&locale=en`)).then((res) =>
         res.json()
       ),
       fetch(
         getStrapiURL(
-          `/api/smsfin-pages?populate=deep&filters[Slug][$eq]=${params.slug[0]}`
+          `/api/spiritualfound-pages?populate=deep&filters[Slug][$eq]=${params.slug[1]}&locale=${params.slug[0]}`
         )
       ).then((res) => res.json()),
     ]);
-
-    return { props: { navData, footerData, pageData: allPagesData.data } };
+     const Locale = params.slug[0]
+    return { props: { navData, footerData, pageData: allPagesData.data ,Locale } };
   } catch (error) {
     console.error(error);
-    return { props: { navData: null, footerData: null, pageData: null } };
+    return { props: { navData: null, footerData: null, pageData: null, Locale:null } };
   }
 }
